@@ -25,11 +25,12 @@ def test_log_line_inputs_get_to_raw_text_lines(tmp_path):
     assert l.raw_text_lines == ['hello', 'world']
 
 def test_log_line_other_inputs():
-    l = LogLine('', line_timestamper=2, max_seconds_till_line_split=3, previous_line=4, read_from_stdin=0)
+    l = LogLine('', line_timestamper=2, max_seconds_till_line_split=3, previous_line=4, read_from_stdin=0, next_line_index=12)
     assert l.line_timestamper == 2
     assert l.max_seconds_till_line_split == 3
     assert l.previous_line == 4
     assert l.read_from_stdin == 0
+    assert l.next_line_index == 12
 
     assert l.log_message == ''
     assert l.log_line_lines == []
@@ -112,10 +113,11 @@ def test_get_next_log_line_vars_passed_properly():
     with patch.object(log_line, 'LogLine', return_value=2) as LogLine:
         assert l.get_next_log_line() == 2
 
-    LogLine.assert_called_once_with(raw_text_lines=['world'],
+    LogLine.assert_called_once_with(raw_text_lines=['hello', 'world'],
                                     previous_line=l,
                                     read_from_stdin=l.read_from_stdin,
-                                    line_timestamper=l.line_timestamper
+                                    line_timestamper=l.line_timestamper,
+                                    next_line_index=1
                                     )
 
 def test_iter_log_lines_with_regex_1():

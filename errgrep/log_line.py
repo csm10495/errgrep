@@ -14,7 +14,8 @@ class LogLine:
 
     def __init__(self, raw_text=None, raw_text_lines=None,
                  log_file=None, read_from_stdin=False, previous_line:typing.Optional[typing.TypeVar('LogLine')]=None,
-                 line_timestamper:typing.Optional[LineTimestamper]=None, max_seconds_till_line_split=1):
+                 line_timestamper:typing.Optional[LineTimestamper]=None, max_seconds_till_line_split=1,
+                 next_line_index=0):
         '''
         If a - is given as the log_file, will read from stdin, (and ignore read_from_stdin)
         '''
@@ -28,6 +29,7 @@ not more or less than one. Or we can use read_from_stdin without one of the othe
 
         self.raw_text_lines = []
         self.read_from_stdin = read_from_stdin
+        self.next_line_index = next_line_index
 
         if raw_text_lines:
             self.raw_text_lines = raw_text_lines
@@ -59,8 +61,8 @@ not more or less than one. Or we can use read_from_stdin without one of the othe
     def _iter_lines(self):
         ''' yields a line from the given place... if it yields a None, assume that a line break happened '''
         if self.raw_text_lines:
-            for line in self.raw_text_lines:
-                yield line
+            for idx in range(self.next_line_index, len(self.raw_text_lines), 1):
+                yield self.raw_text_lines[idx]
 
         if self.read_from_stdin:
             break_force_time = time.time() + self.max_seconds_till_line_split
@@ -106,13 +108,14 @@ not more or less than one. Or we can use read_from_stdin without one of the othe
         Returns the next LogLine in the log.
             Returns None if there is no more available
         '''
-        lines = self.raw_text_lines[len(self.log_line_lines):]
+        new_next_line_index = self.next_line_index + len(self.log_line_lines)
 
-        if lines or (self.read_from_stdin and self.stdin_read_thread.is_alive()):
-            return LogLine(raw_text_lines=lines,
+        if (new_next_line_index < len(self.raw_text_lines)) or (self.read_from_stdin and self.stdin_read_thread.is_alive()):
+            return LogLine(raw_text_lines=self.raw_text_lines,
                            previous_line=self,
                            read_from_stdin=self.read_from_stdin,
-                           line_timestamper=self.line_timestamper)
+                           line_timestamper=self.line_timestamper,
+                           next_line_index=new_next_line_index)
 
     def iter_log_lines_with_regex(self, regex, ignore_case=True):
         '''
