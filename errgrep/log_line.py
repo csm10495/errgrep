@@ -14,8 +14,8 @@ class LogLine:
 
     def __init__(self, raw_text=None, raw_text_lines=None,
                  log_file=None, read_from_stdin=False, previous_line:typing.Optional[typing.TypeVar('LogLine')]=None,
-                 line_timestamper:typing.Optional[LineTimestamper]=None, max_seconds_till_line_split=1,
-                 next_line_index=0, allow_timestamp_format_changes=False):
+                 line_timestamper:typing.Optional[LineTimestamper]=None, max_seconds_till_line_split:float=1,
+                 next_line_index:int=0, allow_timestamp_format_changes:bool=False):
         '''
         If a - is given as the log_file, will read from stdin, (and ignore read_from_stdin)
         '''
@@ -77,7 +77,7 @@ not more or less than one. Or we can use read_from_stdin without one of the othe
                         break_force_time = time.time() + self.max_seconds_till_line_split
                         yield None
 
-                time.sleep(.001)
+                time.sleep(.0001)
 
     def _parse(self):
         self.log_line_lines = []

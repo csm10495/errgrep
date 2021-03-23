@@ -20,4 +20,4 @@ class NonBlockingReadThread(threading.Thread):
             self.lines_queue.put_nowait(line)
 
         while not self.lines_queue.empty():
-            time.sleep(.1)
+            time.sleep(.01)

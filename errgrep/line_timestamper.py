@@ -26,7 +26,7 @@ class LineTimestamper:
         # date time, STUFF
         try:
             return dateutil.parser.parse(line.split(',')[0])
-        except dateutil.parser.ParserError:
+        except:
             pass
 
     @functools.lru_cache(maxsize=1024)
@@ -36,7 +36,7 @@ class LineTimestamper:
         def doIt(line, length):
             try:
                 return dateutil.parser.parse(' '.join(line.split(' ')[:length]))
-            except dateutil.parser.ParserError:
+            except:
                 pass
 
         result = doIt(line, self._last_type_1_length)
