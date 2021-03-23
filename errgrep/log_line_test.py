@@ -25,8 +25,10 @@ def test_log_line_inputs_get_to_raw_text_lines(tmp_path):
     assert l.raw_text_lines == ['hello', 'world']
 
 def test_log_line_other_inputs():
-    l = LogLine('', line_timestamper=2, max_seconds_till_line_split=3, previous_line=4, read_from_stdin=0, next_line_index=12)
-    assert l.line_timestamper == 2
+    l = LogLine('', line_timestamper=None, max_seconds_till_line_split=3, previous_line=4, read_from_stdin=0, next_line_index=12, allow_timestamp_format_changes=22)
+    assert isinstance(l.line_timestamper, log_line.LineTimestamper)
+    assert l.line_timestamper.allow_timestamp_format_changes == 22
+
     assert l.max_seconds_till_line_split == 3
     assert l.previous_line == 4
     assert l.read_from_stdin == 0
