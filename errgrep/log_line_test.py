@@ -9,6 +9,10 @@ LogLine = log_line.LogLine
 # Cheat a bit, by not actually ever using stdin
 log_line.sys.stdin = io.StringIO()
 
+@pytest.fixture(scope='function', autouse=True)
+def reset_log_Line_stdin_thread():
+    log_line.LogLine.stdin_read_thread = None
+
 def test_log_line_inputs_get_to_raw_text_lines(tmp_path):
     # raw text
     l = LogLine(raw_text='hello\nworld')
@@ -49,11 +53,11 @@ def test_log_line_dash_to_read_from_stin():
 
 def test_iter_lines():
     l = LogLine('hello\nworld', read_from_stdin=False, max_seconds_till_line_split=.001)
-    l.stdin_read_thread = MagicMock()
-    l.stdin_read_thread.is_alive = lambda: True
-    l.stdin_read_thread.lines_queue = queue.Queue()
-    l.stdin_read_thread.lines_queue.put_nowait("hi")
-    l.stdin_read_thread.lines_queue.put_nowait("again")
+    LogLine.stdin_read_thread = MagicMock()
+    LogLine.stdin_read_thread.is_alive = lambda: True
+    LogLine.stdin_read_thread.lines_queue = queue.Queue()
+    LogLine.stdin_read_thread.lines_queue.put_nowait("hi")
+    LogLine.stdin_read_thread.lines_queue.put_nowait("again")
     l.read_from_stdin = True
 
     q = []

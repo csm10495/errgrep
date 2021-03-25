@@ -110,7 +110,7 @@ not more or less than one. Or we can use read_from_stdin without one of the othe
         '''
         new_next_line_index = self.next_line_index + len(self.log_line_lines)
 
-        if (new_next_line_index < len(self.raw_text_lines)) or (self.read_from_stdin and LogLine.stdin_read_thread.is_alive()):
+        if (new_next_line_index < len(self.raw_text_lines)) or (self.read_from_stdin and LogLine.stdin_read_thread and LogLine.stdin_read_thread.is_alive()):
             return LogLine(raw_text_lines=self.raw_text_lines,
                            previous_line=self,
                            read_from_stdin=self.read_from_stdin,
