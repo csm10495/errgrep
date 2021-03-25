@@ -7,11 +7,9 @@ import time
 import typing
 
 from .line_timestamper import LineTimestamper
-from .non_blocking_read_thread import NonBlockingReadThread
+from .non_blocking_read_thread import stdin_read_thread
 
 class LogLine:
-    stdin_read_thread = None
-
     def __init__(self, raw_text=None, raw_text_lines=None,
                  log_file=None, read_from_stdin=False, previous_line:typing.Optional[typing.TypeVar('LogLine')]=None,
                  line_timestamper:typing.Optional[LineTimestamper]=None, max_seconds_till_line_split:float=1,
@@ -42,9 +40,8 @@ not more or less than one. Or we can use read_from_stdin without one of the othe
                 self.raw_text_lines = pathlib.Path(log_file).read_text().splitlines()
 
         # We can read_from_stdin AFTER raw_text_lines
-        if self.read_from_stdin and (LogLine.stdin_read_thread is None or not LogLine.stdin_read_thread.is_alive()):
-            LogLine.stdin_read_thread = NonBlockingReadThread(sys.stdin)
-            LogLine.stdin_read_thread.start()
+        if self.read_from_stdin:
+            stdin_read_thread.start_if_not_started_yet()
 
         # when reading from stdin, we wait at most this much time before assuming a log line split
         self.max_seconds_till_line_split = max_seconds_till_line_split
@@ -66,9 +63,9 @@ not more or less than one. Or we can use read_from_stdin without one of the othe
 
         if self.read_from_stdin:
             break_force_time = time.time() + self.max_seconds_till_line_split
-            while LogLine.stdin_read_thread.is_alive():
+            while stdin_read_thread.is_alive():
                 try:
-                    line = LogLine.stdin_read_thread.lines_queue.get_nowait()
+                    line = stdin_read_thread.lines_queue.get_nowait()
                     self.raw_text_lines.append(line)
                     break_force_time = time.time() + self.max_seconds_till_line_split
                     yield line
@@ -110,7 +107,7 @@ not more or less than one. Or we can use read_from_stdin without one of the othe
         '''
         new_next_line_index = self.next_line_index + len(self.log_line_lines)
 
-        if (new_next_line_index < len(self.raw_text_lines)) or (self.read_from_stdin and LogLine.stdin_read_thread and LogLine.stdin_read_thread.is_alive()):
+        if (new_next_line_index < len(self.raw_text_lines)) or (self.read_from_stdin and stdin_read_thread.is_alive()):
             return LogLine(raw_text_lines=self.raw_text_lines,
                            previous_line=self,
                            read_from_stdin=self.read_from_stdin,

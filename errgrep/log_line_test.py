@@ -46,18 +46,23 @@ def test_log_line_other_inputs():
     l._parse.assert_called_once_with()
 
 def test_log_line_dash_to_read_from_stin():
-    l = LogLine(log_file='-', read_from_stdin=False)
+    class LogLineNoParse(LogLine):
+        def _parse(*args, **kwargs):
+            pass
+
+    with patch.object(log_line, 'stdin_read_thread'):
+        l = LogLineNoParse(log_file='-', read_from_stdin=False)
 
     assert l.read_from_stdin == True
     assert l.raw_text_lines == []
 
 def test_iter_lines():
     l = LogLine('hello\nworld', read_from_stdin=False, max_seconds_till_line_split=.001)
-    LogLine.stdin_read_thread = MagicMock()
-    LogLine.stdin_read_thread.is_alive = lambda: True
-    LogLine.stdin_read_thread.lines_queue = queue.Queue()
-    LogLine.stdin_read_thread.lines_queue.put_nowait("hi")
-    LogLine.stdin_read_thread.lines_queue.put_nowait("again")
+    log_line.stdin_read_thread = MagicMock()
+    log_line.stdin_read_thread.is_alive = lambda: True
+    log_line.stdin_read_thread.lines_queue = queue.Queue()
+    log_line.stdin_read_thread.lines_queue.put_nowait("hi")
+    log_line.stdin_read_thread.lines_queue.put_nowait("again")
     l.read_from_stdin = True
 
     q = []
@@ -69,7 +74,7 @@ def test_iter_lines():
 
     assert next(g) is None
 
-    l.stdin_read_thread.is_alive = lambda: False
+    log_line.stdin_read_thread.is_alive = lambda: False
 
     with pytest.raises(StopIteration):
         assert next(g)
