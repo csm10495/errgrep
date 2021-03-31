@@ -8,7 +8,7 @@ def errgrep(file_path, log_line, regex, ignore_case):
     for match in log_line.iter_log_lines_with_regex(regex, ignore_case=ignore_case):
         print('  ' + match.log_message.replace('\n', '\n  ').rstrip(' '))
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='errgrep helps grep for multi-line statements in log files.')
     parser.add_argument('-i', '--ignore-case', action='store_true', help='If given, ignore case in search.')
     parser.add_argument('-a', '--allow-timestamp-format-changes', action='store_true', help='If given, assume the timestamp format can change within a given file.')
@@ -39,3 +39,6 @@ if __name__ == '__main__':
     end_time = time.time()
 
     print(f"Finished in {end_time - start_time:.4f} seconds.")
+
+if __name__ == '__main__':
+    main()
