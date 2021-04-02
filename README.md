@@ -14,7 +14,7 @@ pip install errgrep
 [CLI_OUTPUT_MARKER]::
 
 ```
-usage: errgrep [-h] [-i] [-a] regex [files [files ...]]
+usage: errgrep [-h] [-i] [-a] [-C CONTEXT] regex [files [files ...]]
 
 errgrep helps grep for multi-line statements in log files.
 
@@ -29,6 +29,9 @@ optional arguments:
   -a, --allow-timestamp-format-changes
                         If given, assume the timestamp format can change
                         within a given file.
+  -C CONTEXT, --context CONTEXT
+                        If given, the number of lines of context to print
+                        around matching lines. Can also be given as -NUM.
 
 ```
 
