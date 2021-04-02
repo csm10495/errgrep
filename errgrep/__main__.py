@@ -1,7 +1,7 @@
 import argparse
 import re
 import time
-from colorama import init, Fore, Back, Style
+from colorama import init, Fore
 
 from .log_line import LogLine
 
@@ -15,9 +15,15 @@ def get_text_with_color_for_regex_match(regex: str, text: str, ignore_case: bool
     return text
 
 def indent(text):
+    '''
+    Indents the given string by 2 spaces per line
+    '''
     return '  ' + text.replace('\n', '\n  ').rstrip(' ')
 
-def get_context(log_line, context):
+def get_context(log_line: LogLine, context: int) -> tuple:
+    '''
+    Follows log_lines to get a given amount of contextual log_lines
+    '''
     before_context_lines = []
     after_context_lines = []
     this_line = log_line
@@ -46,7 +52,10 @@ def get_context(log_line, context):
 
     return before_context_lines, after_context_lines
 
-def errgrep(file_path, log_line, regex, ignore_case, context):
+def errgrep(file_path: str, log_line: LogLine, regex: str, ignore_case: bool, context: int) -> None:
+    '''
+    Prints out the errgrep results starting with the given LogLine
+    '''
     print (f"Searching: {file_path if file_path != '-' else '<stdin>'}...")
     for match in log_line.iter_log_lines_with_regex(regex, ignore_case=ignore_case):
         before_context_lines, after_context_lines = get_context(match, context)
@@ -57,8 +66,10 @@ def errgrep(file_path, log_line, regex, ignore_case, context):
         for line in after_context_lines:
             print(Fore.CYAN + indent(line.log_message) + Fore.RESET)
 
-def modify_update_args(args, unknown_args):
-    ''' Find the -NUM arg if its there '''
+def modify_update_args(args: argparse.Namespace, unknown_args: argparse.Namespace) -> argparse.Namespace:
+    '''
+    Find the -NUM arg if its there. Adds it to arg as args.context
+    '''
     args.context = 0
     num_arg_regex = r'-(\d*)'
 
@@ -84,6 +95,7 @@ def modify_update_args(args, unknown_args):
     return args
 
 def main():
+    ''' main entry point '''
     # Colorama init
     init()
 
