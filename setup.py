@@ -38,5 +38,5 @@ setup(
         'console_scripts': ['errgrep=errgrep.__main__:main'],
     },
     include_package_data = True,
-    install_requires=['pytest', 'python-dateutil'],
+    install_requires=['pytest', 'python-dateutil', 'colorama',
 )
