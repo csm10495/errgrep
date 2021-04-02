@@ -70,27 +70,27 @@ def modify_update_args(args: argparse.Namespace, unknown_args: argparse.Namespac
     '''
     Find the -NUM arg if its there. Adds it to arg as args.context
     '''
-    args.context = 0
-    num_arg_regex = r'-(\d*)'
+    if args.context == 0:
+        num_arg_regex = r'-(\d*)'
 
-    # look in regex param
-    match = re.findall(num_arg_regex, args.regex)
-    if match and match[0]:
-        args.context = int(match[0])
-        if not args.files:
-            raise argparse.ArgumentError("Missing regex parameter")
-        args.regex = args.files[0]
-        args.files = args.files[1:]
-    else:
-        # look in each file param :/
-        # if the -NUM is after (or in the files) it could be in unknown_args
-        args.files = args.files + unknown_args
-        for idx, itm in enumerate(args.files):
-            match = re.findall(num_arg_regex, itm)
-            if match and match[0]:
-                args.context = int(match[0])
-                del args.files[idx]
-                break
+        # look in regex param
+        match = re.findall(num_arg_regex, args.regex)
+        if match and match[0]:
+            args.context = int(match[0])
+            if not args.files:
+                raise argparse.ArgumentError("Missing regex parameter")
+            args.regex = args.files[0]
+            args.files = args.files[1:]
+        else:
+            # look in each file param :/
+            # if the -NUM is after (or in the files) it could be in unknown_args
+            args.files = args.files + unknown_args
+            for idx, itm in enumerate(args.files):
+                match = re.findall(num_arg_regex, itm)
+                if match and match[0]:
+                    args.context = int(match[0])
+                    del args.files[idx]
+                    break
 
     return args
 
@@ -102,6 +102,7 @@ def main():
     parser = argparse.ArgumentParser(description='errgrep helps grep for multi-line statements in log files.')
     parser.add_argument('-i', '--ignore-case', action='store_true', help='If given, ignore case in search.')
     parser.add_argument('-a', '--allow-timestamp-format-changes', action='store_true', help='If given, assume the timestamp format can change within a given file.')
+    parser.add_argument('-C', '--context', help='If given, the number of lines of context to print around matching lines. Can also be given as -NUM.', type=int, default=0)
     parser.add_argument('regex', help='The regex used to search to search for statements.')
     parser.add_argument('files', nargs='*', help='Files to search. A "-" corresponds with reading from stdin. If no files are given, will search stdin.')
 
